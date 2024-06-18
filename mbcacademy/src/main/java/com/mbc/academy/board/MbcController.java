@@ -112,25 +112,25 @@ public class MbcController {
 		model.addAttribute("pagemaker", pageMaker);
 		return "board/mylist";
 	}
-	
+
 	@RequestMapping(value = "/getMylistPage", method = RequestMethod.GET)
-	public String getMylistPage(@RequestParam int page, @RequestParam int perPageNum, HttpSession session,
-			Model model) throws Exception {
+	public String getMylistPage(@RequestParam int page, @RequestParam int perPageNum, HttpSession session, Model model)
+			throws Exception {
 		System.out.println("!!!!!!!!!!!!!!!");
-		
+
 		String sesEmpno = (String) session.getAttribute("id");
 		System.out.println("세션등록 empno : " + sesEmpno);
-		
+
 		MbcCriteria cri = new MbcCriteria();
 		cri.setSesEmpno(sesEmpno);
 		cri.setPage(page);
 		cri.setPerPageNum(perPageNum);
-		
+
 		List<MbcDTO> list = service.mylist(cri);
 		int total = service.getTotalCountMyBoard(cri);
-		
+
 		PageMaker pageMaker = new PageMaker(cri, total);
-		
+
 		model.addAttribute("list", list);
 		model.addAttribute("pageMaker", pageMaker);
 		return "board/mylist";
@@ -156,53 +156,52 @@ public class MbcController {
 
 		List<CmtDTO> cmtList1 = cmtService.cmtList1(bno);
 		List<CmtDTO> cnoList = cmtService.cnoList(bno);
-		if(cnoList != null) {
-		List<CmtDTO> cmtList2 = cmtService.cmtList2(cnoList);
-		model.addAttribute("cmtList2", cmtList2);
+		if (cnoList != null) {
+			List<CmtDTO> cmtList2 = cmtService.cmtList2(cnoList);
+			model.addAttribute("cmtList2", cmtList2);
 		}
-		if(fileuploaded != null) {
+		if (fileuploaded != null) {
 			String databaseContent = board.getCnt(); // 데이터베이스에서 가져온 내용
 			String imgTagRegex = "<img\\s+(?:[^>]*?\\s+)?src=\"([^\"]*?)\"";
 			Pattern pattern = Pattern.compile(imgTagRegex);
 			Matcher matcher = pattern.matcher(databaseContent);
-			if(matcher != null) {
-			StringBuffer newContent = new StringBuffer();
-			while (matcher.find()) {
-			    String originalSrc = matcher.group(1);
-			    System.out.println("오리지널 네임 " + originalSrc);
-				FileResponse savename = fileService.findimg(bno, originalSrc);
-				String savename2 = savename.getSaveName();
-				String folderDate = savename.getCreatedDate().split(" ")[0].replace("-", "").substring(2);
-				String newSrc = "/uploaded/" + folderDate + "/" + savename2 ; // 변경할 새로운 src 값
-				 System.out.println("바뀐경로1 " + newSrc);
-				 System.out.println("바뀐경로2 " + savename2);
-				String newImgTag = String.format("<img src=\"%s\"", newSrc);
-			    System.out.println("바뀐경로3 " + newImgTag);
-			    matcher.appendReplacement(newContent, newImgTag);
+			if (matcher != null) {
+				StringBuffer newContent = new StringBuffer();
+				while (matcher.find()) {
+					String originalSrc = matcher.group(1);
+					System.out.println("오리지널 네임 " + originalSrc);
+					FileResponse savename = fileService.findimg(bno, originalSrc);
+					String savename2 = savename.getSaveName();
+					String folderDate = savename.getCreatedDate().split(" ")[0].replace("-", "").substring(2);
+					String newSrc = "/uploaded/" + folderDate + "/" + savename2; // 변경할 새로운 src 값
+					System.out.println("바뀐경로1 " + newSrc);
+					System.out.println("바뀐경로2 " + savename2);
+					String newImgTag = String.format("<img src=\"%s\"", newSrc);
+					System.out.println("바뀐경로3 " + newImgTag);
+					matcher.appendReplacement(newContent, newImgTag);
+				}
+				matcher.appendTail(newContent);
+
+				// newContent에는 src 값이 변경된 새로운 내용이 포함됨
+				String updatedContent = newContent.toString();
+				System.out.println(updatedContent);
+				board.setCnt(updatedContent);
+
 			}
-			matcher.appendTail(newContent);
-
-			// newContent에는 src 값이 변경된 새로운 내용이 포함됨
-			String updatedContent = newContent.toString();
-			System.out.println(updatedContent);
-			board.setCnt(updatedContent);
-
-		}
 		}
 		model.addAttribute("board", board);
 		model.addAttribute("isAuthor", isAuthor);
 		model.addAttribute("cmtList1", cmtList1);
-	
-		
+
 		return "board/detail";
 	}
-	
-	   @PostMapping("/detail")
-	    public String detail(@RequestParam("bno") int bno) throws Exception {
-		   	// 신고수
-			service.updateRprb(bno);
-	        return "redirect:/list";
-	    }
+
+	@PostMapping("/detail")
+	public String detail(@RequestParam("bno") int bno) throws Exception {
+		// 신고수
+		service.updateRprb(bno);
+		return "redirect:/list";
+	}
 
 	@RequestMapping(value = "/register", method = RequestMethod.GET)
 	public String register() throws Exception {
@@ -219,8 +218,8 @@ public class MbcController {
 		int r = service.register(mbcDTO);
 		int bno = mbcDTO.getBno();
 		System.out.println(bno);
-		 List<FileRequest> files = fileutils.uploadFiles(mbcDTO.getFiles());
-		 fileService.saveFiles(bno, files);
+		List<FileRequest> files = fileutils.uploadFiles(mbcDTO.getFiles());
+		fileService.saveFiles(bno, files);
 		if (r != 0) {
 			System.out.println("등록성공");
 		} else {
@@ -234,34 +233,34 @@ public class MbcController {
 	public String update(@RequestParam("bno") int bno, Model model) throws Exception {
 		MbcDTO board = service.detail(bno);
 		List<FileResponse> fileuploaded = fileService.findAllFileByPostId(bno);
-		if(fileuploaded != null) {
+		if (fileuploaded != null) {
 			String databaseContent = board.getCnt(); // 데이터베이스에서 가져온 내용
 			String imgTagRegex = "<img\\s+(?:[^>]*?\\s+)?src=\"([^\"]*?)\"";
 			Pattern pattern = Pattern.compile(imgTagRegex);
 			Matcher matcher = pattern.matcher(databaseContent);
-			if(matcher != null) {
-			StringBuffer newContent = new StringBuffer();
-			while (matcher.find()) {
-			    String originalSrc = matcher.group(1);
-			    System.out.println("오리지널 네임 " + originalSrc);
-				FileResponse savename = fileService.findimg(bno, originalSrc);
-				String savename2 = savename.getSaveName();
-				String folderDate = savename.getCreatedDate().split(" ")[0].replace("-", "").substring(2);
-				String newSrc = "/uploaded/" + folderDate + "/" + savename2 ; // 변경할 새로운 src 값
-				 System.out.println("바뀐경로1 " + newSrc);
-				 System.out.println("바뀐경로2 " + savename2);
-				String newImgTag = String.format("<img src=\"%s\"", newSrc);
-			    System.out.println("바뀐경로3 " + newImgTag);
-			    matcher.appendReplacement(newContent, newImgTag);
+			if (matcher != null) {
+				StringBuffer newContent = new StringBuffer();
+				while (matcher.find()) {
+					String originalSrc = matcher.group(1);
+					System.out.println("오리지널 네임 " + originalSrc);
+					FileResponse savename = fileService.findimg(bno, originalSrc);
+					String savename2 = savename.getSaveName();
+					String folderDate = savename.getCreatedDate().split(" ")[0].replace("-", "").substring(2);
+					String newSrc = "/uploaded/" + folderDate + "/" + savename2; // 변경할 새로운 src 값
+					System.out.println("바뀐경로1 " + newSrc);
+					System.out.println("바뀐경로2 " + savename2);
+					String newImgTag = String.format("<img src=\"%s\"", newSrc);
+					System.out.println("바뀐경로3 " + newImgTag);
+					matcher.appendReplacement(newContent, newImgTag);
+				}
+				matcher.appendTail(newContent);
+
+				// newContent에는 src 값이 변경된 새로운 내용이 포함됨
+				String updatedContent = newContent.toString();
+				System.out.println(updatedContent);
+				board.setCnt(updatedContent);
+
 			}
-			matcher.appendTail(newContent);
-
-			// newContent에는 src 값이 변경된 새로운 내용이 포함됨
-			String updatedContent = newContent.toString();
-			System.out.println(updatedContent);
-			board.setCnt(updatedContent);
-
-		}
 		}
 		model.addAttribute("board", board);
 		return "board/update";
@@ -273,23 +272,24 @@ public class MbcController {
 
 		request.setCharacterEncoding("utf-8");
 		int r = service.update(mbcDTO);
-		   // 2. 파일 업로드 (to disk)
-        List<FileRequest> uploadFiles =  fileutils.uploadFiles(mbcDTO.getFiles());
-        System.out.println(uploadFiles);
-        // 3. 파일 정보 저장 (to database)
-        fileService.saveFiles(mbcDTO.getBno(), uploadFiles);
+		// 2. 파일 업로드 (to disk)
+		List<FileRequest> uploadFiles = fileutils.uploadFiles(mbcDTO.getFiles());
+		System.out.println(uploadFiles);
+		// 3. 파일 정보 저장 (to database)
+		fileService.saveFiles(mbcDTO.getBno(), uploadFiles);
 
-        // 4. 삭제할 파일 정보 조회 (from database)
-        List<FileResponse> deleteFiles = fileService.findAllFileByIds(mbcDTO.getRemoveFileIds());
-        System.out.println("삭제 리스트"+deleteFiles);
-        // 5. 파일 삭제 (from disk)
-        fileutils.deleteFiles(deleteFiles);
+		// 4. 삭제할 파일 정보 조회 (from database)
+		List<FileResponse> deleteFiles = fileService.findAllFileByIds(mbcDTO.getRemoveFileIds());
+		System.out.println("삭제 리스트" + deleteFiles);
+		// 5. 파일 삭제 (from disk)
+		fileutils.deleteFiles(deleteFiles);
 
-        // 6. 파일 삭제 (from database)
-        fileService.deleteAllFileByIds(mbcDTO.getRemoveFileIds());
+		// 6. 파일 삭제 (from database)
+		fileService.deleteAllFileByIds(mbcDTO.getRemoveFileIds());
 		if (r > 0) {
 			rttr.addFlashAttribute("msg", "수정이 완료되었습니다.");
-			return "redirect:detail?bno=" + mbcDTO.getBno() + "&source=" + (request.getParameter("source") != null ? "aumlist" : "list");
+			return "redirect:detail?bno=" + mbcDTO.getBno() + "&source="
+					+ (request.getParameter("source") != null ? "aumlist" : "list");
 		}
 		return "redirect:update?bno=" + mbcDTO.getBno();
 
@@ -348,7 +348,7 @@ public class MbcController {
 			@RequestParam(required = false) String searchSelect, @RequestParam int page, @RequestParam int perPageNum,
 			Model model) throws Exception {
 		System.out.println("!!!!!!!!!!!!!!!");
-		
+
 		String dcdKeyword = URLDecoder.decode(keyword, StandardCharsets.UTF_8);
 		String dcdSearchSelect = URLDecoder.decode(searchSelect, StandardCharsets.UTF_8);
 
@@ -384,8 +384,8 @@ public class MbcController {
 		int r = service.register(mbcDTO);
 		int bno = mbcDTO.getBno();
 		System.out.println(bno);
-		 List<FileRequest> files = fileutils.uploadFiles(mbcDTO.getFiles());
-		 fileService.saveFiles(bno, files);
+		List<FileRequest> files = fileutils.uploadFiles(mbcDTO.getFiles());
+		fileService.saveFiles(bno, files);
 		if (r != 0) {
 			System.out.println("등록성공");
 		} else {
@@ -395,6 +395,4 @@ public class MbcController {
 		return "redirect:detail?bno=" + bno + "&source=aumlist";
 	}
 
-	
-	
 }
