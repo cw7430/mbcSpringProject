@@ -3,6 +3,8 @@ package com.mbc.academy.aprv;
 import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -12,10 +14,11 @@ public class AprvDAOImpl implements AprvDAO {
 	@Autowired
 	private SqlSession sqlsession;
 	private static final String namespace = "com.mbc.academy.aprvMapper";
+	private static final Logger logger = LoggerFactory.getLogger(AprvDAOImpl.class);
 
 	@Override
 	public List<AprvDTO> aprvList(AprvCriteria cri) throws Exception {
-		System.out.println("결재 리스트 조회 DAO");
+		logger.debug("결재 리스트 조회 DAO");
 		return sqlsession.selectList(namespace + ".aprvList", cri);
 	}
 	
@@ -30,7 +33,7 @@ public class AprvDAOImpl implements AprvDAO {
 
 	@Override
 	public List<AprvDTO> ptoList(AprvCriteria cri) throws Exception {
-		System.out.println("신청 리스트 조회 DAO");
+		logger.debug("신청 리스트 조회 DAO");
 		return sqlsession.selectList(namespace + ".ptoList", cri);
 	}
 	
@@ -51,7 +54,7 @@ public class AprvDAOImpl implements AprvDAO {
 
 	@Override
 	public AprvDTO aprvDetail(int pno) throws Exception {
-		System.out.println(pno + "번 결재 상세 조회 DAO");
+		logger.debug(pno + "번 결재 상세 조회 DAO");
 		return sqlsession.selectOne(namespace + ".aprvDetail", pno);
 	}
 
@@ -67,24 +70,24 @@ public class AprvDAOImpl implements AprvDAO {
 
 	@Override
 	public int aprv(AprvDTO aprv) throws Exception {
-		System.out.println(aprv.getPno() + "번 결재 DAO");
+		logger.debug(aprv.getPno() + "번 결재 DAO");
 		return sqlsession.update(namespace + ".aprv", aprv);
 	}
 
 	@Override
 	public int updatePTO(AprvDTO aprv) throws Exception {
-		System.out.println(aprv.getEmpno() + "연차 +" + aprv.getUsp() + "업데이트 Service");
+		logger.debug(aprv.getEmpno() + "연차 +" + aprv.getUsp() + "업데이트 Service");
 		return sqlsession.update(namespace + ".updatePTO", aprv);
 	}
 
 	@Override
 	public int updateHalfPTO(AprvDTO aprv) throws Exception {
-		System.out.println(aprv.getEmpno() + "반차 +" + aprv.getUsp() + "업데이트 Service");
+		logger.debug(aprv.getEmpno() + "반차 +" + aprv.getUsp() + "업데이트 Service");
 		return sqlsession.update(namespace + ".updateHalfPTO", aprv);
 	}
 	
 	public int insertATST(AprvDTO aprv) throws Exception {
-		System.out.println(aprv.getEmpno() + "근태 업데이트 Service");
+		logger.debug(aprv.getEmpno() + "근태 업데이트 Service");
 		return sqlsession.insert(namespace + ".insertATST", aprv);
 	}
 

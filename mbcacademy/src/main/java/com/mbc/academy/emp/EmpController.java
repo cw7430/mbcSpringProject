@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -70,7 +71,8 @@ public class EmpController {
 		emp.setBri(briString);
 
 		// 파일을 저장할 경로 설정
-		String uploadPath = "C:/Users/402-2/Documents/workspace-Spring/mbcacademy/src/main/webapp/resources/emp_pic/";
+		ServletContext context = request.getSession().getServletContext();
+		String uploadPath = context.getRealPath("/resources/emp_pic/");
 		// 파일 이름 설정 (pic_사번.jpg)
 		String fileName = "pic_" + emp.getEmpno() + ".jpg";
 		// 파일을 실제로 저장하는 메서드 호출

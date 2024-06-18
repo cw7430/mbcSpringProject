@@ -2,6 +2,8 @@ package com.mbc.academy.aprv;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,10 +13,11 @@ public class AprvServiceImpl implements AprvService{
 	
 	@Autowired
 	AprvDAO aprvDao;
+	private static final Logger logger = LoggerFactory.getLogger(AprvServiceImpl.class);
 	
 	@Override
 	public List<AprvDTO> aprvList(AprvCriteria cri) throws Exception {
-		System.out.println("결재 리스트 조회 Service");
+		logger.debug("결재 리스트 조회 Service");
 		return aprvDao.aprvList(cri);
 	}
 	
@@ -29,7 +32,7 @@ public class AprvServiceImpl implements AprvService{
 	}
 	
 	public List<AprvDTO> ptoList(AprvCriteria cri) throws Exception {
-		System.out.println("신청 리스트 조회 Service");
+		logger.debug("신청 리스트 조회 Service");
 		return aprvDao.ptoList(cri);
 	}
 	
@@ -50,7 +53,7 @@ public class AprvServiceImpl implements AprvService{
 
 	@Override
 	public AprvDTO aprvDetail(int pno) throws Exception {
-		System.out.println(pno + "번 결재 상세 조회 Service");
+		logger.debug(pno + "번 결재 상세 조회 Service");
 		return aprvDao.aprvDetail(pno);
 	}
 
@@ -67,21 +70,21 @@ public class AprvServiceImpl implements AprvService{
 	@Override
 	@Transactional
 	public int aprv(AprvDTO aprv) throws Exception {
-		System.out.println(aprv.getPno() + "번 결재 Service");
+		logger.debug(aprv.getPno() + "번 결재 Service");
 		
 		int result = aprvDao.aprv(aprv);
 		
 		if ("P2".equals(aprv.getStts())) {
 			if ("T0".equals(aprv.getPtotp())) {
-				System.out.println(aprv.getEmpno() + "연차 업데이트 Service");
+				logger.debug(aprv.getEmpno() + "연차 업데이트 Service");
 				aprvDao.updatePTO(aprv);
 				aprvDao.insertATST(aprv);
 			} else if ("T1".equals(aprv.getPtotp())) {
-				System.out.println(aprv.getEmpno() + "반차 업데이트 Service");
+				logger.debug(aprv.getEmpno() + "반차 업데이트 Service");
 				aprvDao.updateHalfPTO(aprv);
 				aprvDao.insertATST(aprv);
 			} else if ("T2".equals(aprv.getPtotp())) {
-				System.out.println(aprv.getEmpno() + "기타 업데이트 Service");
+				logger.debug(aprv.getEmpno() + "기타 업데이트 Service");
 				aprvDao.insertATST(aprv);
 			}
 		}

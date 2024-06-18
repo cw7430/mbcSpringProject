@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -29,7 +31,6 @@ import com.mbc.academy.attd.ATTDService;
 import com.mbc.academy.attd.AttdDTO;
 import com.mbc.academy.board.MbcDTO;
 import com.mbc.academy.board.MbcService;
-import com.mbc.academy.chnemp.ChnempCriteria;
 import com.mbc.academy.chnemp.ChnempDTO;
 import com.mbc.academy.chnemp.ChnempService;
 import com.mbc.academy.empolyloginandsearch.LEmpDTO;
@@ -37,6 +38,7 @@ import com.mbc.academy.empolyloginandsearch.LEmplistService;
 import com.mbc.academy.socket.WebSocketHandler;
 import com.mbc.academy.socket.alarmDTO;
 import com.mbc.academy.socket.alarmSerivce;
+
 
 @Controller
 public class MainController {
@@ -52,6 +54,8 @@ public class MainController {
 	private ChnempService chnemp;
 	@Autowired
 	private alarmSerivce as;
+	
+	private static final Logger logger = LoggerFactory.getLogger(MainController.class);
 
 	private final WebSocketHandler webSocketHandler;
 	
@@ -160,7 +164,7 @@ public class MainController {
              if(!empno.equals("admin")) {
       		  int todayok = attd.gettoday(todaynow);
       		  if(todayok ==0) {
-      			 System.out.println("실행");
+      			 logger.debug("실행");
       			 List<AttdDTO> attdempno = attd.getallempno();
       			 attd.allinserttoday(attdempno);
       		  }
@@ -228,7 +232,7 @@ public class MainController {
 	   
 	    @RequestMapping(value = "/ajax/resetPw", method = RequestMethod.GET)
 	    public String resetPw() {
-	      System.out.print("본인인증");
+	      logger.debug("본인인증");
 	      return "modal/resetPw";
 	    }
 	   
@@ -265,7 +269,7 @@ public class MainController {
 			 if((gtw.equals("A1") || gtw.equals("A3"))) {
 				
 				int a = attd.gow(empno);
-				System.out.println(a);
+				logger.debug("출근시간 기록" + a);
 				if(a == 1) {
 				 model.addAttribute("gowshowAlert", true); 
 		        HttpSession session = request.getSession(false);
@@ -293,7 +297,7 @@ public class MainController {
 			 }
 			 else if(gtw.equals("A4")) {
 				 int a = attd.gow(empno); // 퇴근 시간 기록
-				    System.out.println(a);
+				 	logger.debug("퇴근시간 기록" + a);;
 				    model.addAttribute("gowshowAlert", true);
 				    if (a == 1) {
 				      model.addAttribute("message", "현재 휴가 상태이며, 퇴근 시간이 기록되었습니다.");

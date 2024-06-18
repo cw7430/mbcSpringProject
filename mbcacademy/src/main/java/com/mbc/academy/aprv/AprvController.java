@@ -37,10 +37,10 @@ public class AprvController {
 
    @GetMapping("/ptoList")
    public String ptoList(AprvCriteria cri, HttpSession session, Model model) throws Exception {
-      System.out.println("신청 리스트 조회 Controller");
+      logger.debug("신청 리스트 조회 Controller");
 
       String sesEmpno = (String) session.getAttribute("id");
-      System.out.println("세션등록 empno : " + sesEmpno);
+      logger.debug("세션등록 empno : " + sesEmpno);
 
       cri.setSesEmpno(sesEmpno);
 
@@ -62,7 +62,7 @@ public class AprvController {
          @RequestParam String sortOrder, Model model, HttpSession session) throws Exception {
 
       String sesEmpno = (String) session.getAttribute("id");
-      System.out.println("세션등록 empno : " + sesEmpno);
+      logger.debug("세션등록 empno : " + sesEmpno);
 
       String dcdKeyword = URLDecoder.decode(keyword, StandardCharsets.UTF_8);
       String dcdKeyword2 = URLDecoder.decode(keyword2, StandardCharsets.UTF_8);
@@ -96,12 +96,12 @@ public class AprvController {
 
    @GetMapping("/aprvList")
    public String list(AprvCriteria cri, HttpSession session, Model model) throws Exception {
-      System.out.println("결재 리스트 조회 Controller");
+      logger.debug("결재 리스트 조회 Controller");
 
       Integer sesAdmns = (Integer) session.getAttribute("admns");
       String sesDept = (String) session.getAttribute("dept");
 
-      System.out.println("세션등록 admns : " + sesAdmns + ", dept : " + sesDept);
+      logger.debug("세션등록 admns : " + sesAdmns + ", dept : " + sesDept);
 
       cri.setSesAdmns(sesAdmns);
       cri.setSesDept(sesDept);
@@ -126,7 +126,7 @@ public class AprvController {
 
       Integer sesAdmns = (Integer) session.getAttribute("admns");
       String sesDept = (String) session.getAttribute("dept");
-      System.out.println("세션등록 admns : " + sesAdmns + ", dept : " + sesDept);
+      logger.debug("세션등록 admns : " + sesAdmns + ", dept : " + sesDept);
 
       String dcdKeyword = URLDecoder.decode(keyword, StandardCharsets.UTF_8);
       String dcdKeyword2 = URLDecoder.decode(keyword2, StandardCharsets.UTF_8);
@@ -189,7 +189,7 @@ public class AprvController {
 
    @GetMapping("/aprvDetail")
    public String ptoDetail(@RequestParam("pno") int pno, Model model) throws Exception {
-      System.out.println(pno + "번 결재 상세 조회 Controller");
+      logger.debug(pno + "번 결재 상세 조회 Controller");
       AprvDTO aprv = service.aprvDetail(pno);
       model.addAttribute("aprv", aprv);
       return "aprv/aprvDetail";
@@ -244,16 +244,16 @@ public class AprvController {
 
    @PostMapping("/aprv")
    public String aprv(AprvDTO aprv, HttpServletRequest request, RedirectAttributes rttr) throws Exception {
-      System.out.println(aprv.getPno() + "번 결재 Controller");
+      logger.debug(aprv.getPno() + "번 결재 Controller");
       request.setCharacterEncoding("UTF-8");
-      System.out.println(aprv.getEmpno());
+      logger.debug(aprv.getEmpno());
       int row = service.aprv(aprv);
       if (row > 0) {
-         System.out.println(aprv.getPno() + "번 결재 성공 Controller");
+         logger.debug(aprv.getPno() + "번 결재 성공 Controller");
          webSocketHandler.sendMessageToUser("휴가" , aprv.getEmpno(), Integer.toString(aprv.getPno()), aprv.getApprver());
          rttr.addFlashAttribute("msg", "결재가 완료되었습니다.");
       } else {
-         System.out.println(aprv.getPno() + "번 결재 실패 Controller");
+         logger.debug(aprv.getPno() + "번 결재 실패 Controller");
       }
       return "redirect:/aprvDetail?source=aprvList&pno=" + aprv.getPno();
    }

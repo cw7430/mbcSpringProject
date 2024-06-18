@@ -53,8 +53,7 @@ public class MbcController {
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public String list(MbcCriteria cri, Model model) throws Exception {
 
-		logger.info("===list===");
-		System.out.println("!!!!!!!!!!!!!!!");
+		logger.debug("===list===");
 
 		List<MbcDTO> list = service.list(cri);
 		model.addAttribute("list", list);
@@ -70,7 +69,6 @@ public class MbcController {
 	public String getMbcListPage(@RequestParam(required = false) String keyword,
 			@RequestParam(required = false) String searchSelect, @RequestParam int page, @RequestParam int perPageNum,
 			Model model) throws Exception {
-		System.out.println("!!!!!!!!!!!!!!!");
 
 		String dcdKeyword = URLDecoder.decode(keyword, StandardCharsets.UTF_8);
 		String dcdSearchSelect = URLDecoder.decode(searchSelect, StandardCharsets.UTF_8);
@@ -96,11 +94,10 @@ public class MbcController {
 	@RequestMapping(value = "/mylist", method = RequestMethod.GET)
 	public String mylist(MbcCriteria cri, HttpSession session, Model model) throws Exception {
 
-		logger.info("===list===");
-		System.out.println("!!!!!!!!!!!!!!!");
+		logger.debug("===list===");
 
 		String sesEmpno = (String) session.getAttribute("id");
-		System.out.println("세션등록 empno : " + sesEmpno);
+		logger.debug("세션등록 empno : " + sesEmpno);
 
 		cri.setSesEmpno(sesEmpno);
 
@@ -116,10 +113,9 @@ public class MbcController {
 	@RequestMapping(value = "/getMylistPage", method = RequestMethod.GET)
 	public String getMylistPage(@RequestParam int page, @RequestParam int perPageNum, HttpSession session, Model model)
 			throws Exception {
-		System.out.println("!!!!!!!!!!!!!!!");
 
 		String sesEmpno = (String) session.getAttribute("id");
-		System.out.println("세션등록 empno : " + sesEmpno);
+		logger.debug("세션등록 empno : " + sesEmpno);
 
 		MbcCriteria cri = new MbcCriteria();
 		cri.setSesEmpno(sesEmpno);
@@ -169,22 +165,22 @@ public class MbcController {
 				StringBuffer newContent = new StringBuffer();
 				while (matcher.find()) {
 					String originalSrc = matcher.group(1);
-					System.out.println("오리지널 네임 " + originalSrc);
+					logger.debug("오리지널 네임 " + originalSrc);
 					FileResponse savename = fileService.findimg(bno, originalSrc);
 					String savename2 = savename.getSaveName();
 					String folderDate = savename.getCreatedDate().split(" ")[0].replace("-", "").substring(2);
 					String newSrc = "/uploaded/" + folderDate + "/" + savename2; // 변경할 새로운 src 값
-					System.out.println("바뀐경로1 " + newSrc);
-					System.out.println("바뀐경로2 " + savename2);
+					logger.debug("바뀐경로1 " + newSrc);
+					logger.debug("바뀐경로2 " + savename2);
 					String newImgTag = String.format("<img src=\"%s\"", newSrc);
-					System.out.println("바뀐경로3 " + newImgTag);
+					logger.debug("바뀐경로3 " + newImgTag);
 					matcher.appendReplacement(newContent, newImgTag);
 				}
 				matcher.appendTail(newContent);
 
 				// newContent에는 src 값이 변경된 새로운 내용이 포함됨
 				String updatedContent = newContent.toString();
-				System.out.println(updatedContent);
+				logger.debug(updatedContent);
 				board.setCnt(updatedContent);
 
 			}
@@ -217,13 +213,13 @@ public class MbcController {
 		mbcDTO.setEmpno(loginEmpno);
 		int r = service.register(mbcDTO);
 		int bno = mbcDTO.getBno();
-		System.out.println(bno);
+		logger.debug(bno + "번 게시글 등록 시도");
 		List<FileRequest> files = fileutils.uploadFiles(mbcDTO.getFiles());
 		fileService.saveFiles(bno, files);
 		if (r != 0) {
-			System.out.println("등록성공");
+			logger.debug(bno + "번 게시글 등록 성공");
 		} else {
-			System.out.println("등록실패");
+			logger.debug(bno + "번 게시글 등록 실패");
 		}
 
 		return "redirect:detail?bno=" + bno + "&source=list";
@@ -242,22 +238,22 @@ public class MbcController {
 				StringBuffer newContent = new StringBuffer();
 				while (matcher.find()) {
 					String originalSrc = matcher.group(1);
-					System.out.println("오리지널 네임 " + originalSrc);
+					logger.debug("오리지널 네임 " + originalSrc);
 					FileResponse savename = fileService.findimg(bno, originalSrc);
 					String savename2 = savename.getSaveName();
 					String folderDate = savename.getCreatedDate().split(" ")[0].replace("-", "").substring(2);
 					String newSrc = "/uploaded/" + folderDate + "/" + savename2; // 변경할 새로운 src 값
-					System.out.println("바뀐경로1 " + newSrc);
-					System.out.println("바뀐경로2 " + savename2);
+					logger.debug("바뀐경로1 " + newSrc);
+					logger.debug("바뀐경로2 " + savename2);
 					String newImgTag = String.format("<img src=\"%s\"", newSrc);
-					System.out.println("바뀐경로3 " + newImgTag);
+					logger.debug("바뀐경로3 " + newImgTag);
 					matcher.appendReplacement(newContent, newImgTag);
 				}
 				matcher.appendTail(newContent);
 
 				// newContent에는 src 값이 변경된 새로운 내용이 포함됨
 				String updatedContent = newContent.toString();
-				System.out.println(updatedContent);
+				logger.debug(updatedContent);
 				board.setCnt(updatedContent);
 
 			}
@@ -274,6 +270,7 @@ public class MbcController {
 		int r = service.update(mbcDTO);
 		// 2. 파일 업로드 (to disk)
 		List<FileRequest> uploadFiles = fileutils.uploadFiles(mbcDTO.getFiles());
+		logger.debug(null);
 		System.out.println(uploadFiles);
 		// 3. 파일 정보 저장 (to database)
 		fileService.saveFiles(mbcDTO.getBno(), uploadFiles);
@@ -330,8 +327,7 @@ public class MbcController {
 	@RequestMapping(value = "/aumlist", method = RequestMethod.GET)
 	public String aumlist(MbcCriteria cri, Model model) throws Exception {
 
-		logger.info("===list===");
-		System.out.println("?????????????");
+		logger.debug("===list===");
 
 		List<MbcDTO> aumlist = service.aumlist(cri);
 		model.addAttribute("aumlist", aumlist);
@@ -347,7 +343,6 @@ public class MbcController {
 	public String modalempolyaumsearch(@RequestParam(required = false) String keyword,
 			@RequestParam(required = false) String searchSelect, @RequestParam int page, @RequestParam int perPageNum,
 			Model model) throws Exception {
-		System.out.println("!!!!!!!!!!!!!!!");
 
 		String dcdKeyword = URLDecoder.decode(keyword, StandardCharsets.UTF_8);
 		String dcdSearchSelect = URLDecoder.decode(searchSelect, StandardCharsets.UTF_8);
@@ -383,13 +378,13 @@ public class MbcController {
 		mbcDTO.setEmpno(loginEmpno);
 		int r = service.register(mbcDTO);
 		int bno = mbcDTO.getBno();
-		System.out.println(bno);
+		logger.debug(bno + "번 게시글 등록 시도");
 		List<FileRequest> files = fileutils.uploadFiles(mbcDTO.getFiles());
 		fileService.saveFiles(bno, files);
 		if (r != 0) {
-			System.out.println("등록성공");
+			logger.debug(bno + "번 게시글 등록 성공");
 		} else {
-			System.out.println("등록실패");
+			logger.debug(bno + "번 게시글 등록 실패");
 		}
 
 		return "redirect:detail?bno=" + bno + "&source=aumlist";
